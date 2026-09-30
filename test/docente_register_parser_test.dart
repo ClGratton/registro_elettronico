@@ -35,6 +35,11 @@ const _page = '''
     <div class="f_reg_assenza div_stato_giorno"><p class="stato_giorno_shortdesc"> A </p><p class="tim_desc_stato"> Assente </p></div></a></td>
   <td class="registro rigtab firma_stato"><div class="cella40px materia_desc">FIS</div><div class="f_reg_assenza_lezione s_reg_testo"> AL </div></td>
 </tr>
+<tr id="3" class="mainrow rigtab">
+  <td class="giustifica cursor_pointer elenco_studenti" studente_id="3"><div>NERI MARTA</div><div class="open_sans font_size_8">05-06-2010</div></td>
+  <td class="statoassenza_g registro rigtab"><a class="studenti_cambiastato">
+    <div class="f_reg_assenza_giustificata div_stato_giorno"><p class="stato_giorno_shortdesc"> AG </p><p class="tim_desc_stato"> Assente giustificato </p></div></a></td>
+</tr>
 </table>
 ''';
 
@@ -60,11 +65,12 @@ void main() {
 
   test('parses the roll call', () {
     final students = parseDocenteRegister(_page).students;
-    expect(students.map((s) => s.name), ['ROSSI ANNA', 'VERDI LUCA']);
+    expect(students.map((s) => s.name),
+        ['ROSSI ANNA', 'VERDI LUCA', 'NERI MARTA']);
     expect(students.first.birthDate, '01-02-2010');
-    expect(students.map((s) => s.present), [true, false]);
-    expect(students.last.statusDescription, 'Assente');
-    expect(students.last.hours.single.present, isFalse);
+    expect(students.map((s) => s.present), [true, false, false]);
+    expect(students[1].statusDescription, 'Assente');
+    expect(students[1].hours.single.present, isFalse);
     expect(students.first.hours.single.subject, 'FIS');
   });
 }

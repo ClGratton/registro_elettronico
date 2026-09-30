@@ -28,14 +28,8 @@ class DocenteAbsencesPage extends StatefulWidget {
   _DocenteAbsencesPageState createState() => _DocenteAbsencesPageState();
 }
 
-/// School year months, September to June.
-List<DateTime> _schoolMonths(DateTime now) {
-  final startYear = now.month >= 9 ? now.year : now.year - 1;
-  return [for (var i = 0; i < 10; i++) DateTime(startYear, 9 + i)];
-}
-
 class _DocenteAbsencesPageState extends State<DocenteAbsencesPage> {
-  late final List<DateTime> _months = _schoolMonths(DateTime.now());
+  late final List<DateTime> _months = docenteSchoolMonths(DateTime.now());
   late int _monthIndex = _months.indexWhere(
       (m) => m.year == DateTime.now().year && m.month == DateTime.now().month);
   Future<List<DocenteStudentAbsences>>? _students;

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:registro_elettronico/core/infrastructure/app_injection.dart';
 import 'package:registro_elettronico/feature/authentication/data/datasource/registry_provider_preferences.dart';
@@ -45,12 +47,15 @@ class RegistryProviderPage extends StatelessWidget {
               onPressed: () => _select(context, RegistryProvider.didUp),
               child: const Text('didUP'),
             ),
-            const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: () =>
-                  _select(context, RegistryProvider.classeVivaDocente),
-              child: Text(docenteText(context, 'docente_provider_button')),
-            ),
+            // The teacher login needs the Android-only WebView cookie channel.
+            if (Platform.isAndroid) ...[
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: () =>
+                    _select(context, RegistryProvider.classeVivaDocente),
+                child: Text(docenteText(context, 'docente_provider_button')),
+              ),
+            ],
           ],
         ),
       ),

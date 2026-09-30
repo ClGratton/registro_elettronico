@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:registro_elettronico/feature/docente/data/docente_text.dart';
+
 /// An event of the class agenda (`/cvv/app/default/agenda.php`, JSON mode):
 /// homework, tests, notes for students and other class events.
 class DocenteClassEvent {
@@ -31,8 +33,8 @@ class DocenteClassEvent {
       DocenteClassEvent(
         id: '${json['id'] ?? ''}',
         title: _text(json['title']),
-        start: _date(json['start']),
-        end: _date(json['end']),
+        start: docenteParseDateTime(json['start']),
+        end: docenteParseDateTime(json['end']),
         allDay: json['allDay'] == true,
         kind: _text(json['tipo']),
         author: _text(json['autore_desc']),
@@ -57,6 +59,3 @@ List<DocenteClassEvent> parseDocenteClassAgenda(dynamic json) {
 
 String _text(dynamic value) =>
     value == null ? '' : '$value'.replaceAll(RegExp(r'\s+'), ' ').trim();
-
-DateTime? _date(dynamic value) =>
-    value == null ? null : DateTime.tryParse('$value'.replaceFirst(' ', 'T'));

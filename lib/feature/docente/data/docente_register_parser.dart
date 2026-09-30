@@ -98,7 +98,8 @@ DocenteStudentDay _student(Element row) {
     birthDate: nameDivs.length > 1
         ? RegExp(r'\d{2}-\d{2}-\d{4}').stringMatch(nameDivs[1].text) ?? ''
         : '',
-    present: day == null || !day.classes.contains('f_reg_assenza'),
+    present:
+        day == null || !day.classes.any((c) => c.startsWith('f_reg_assenza')),
     status: docenteClean(day?.querySelector('.stato_giorno_shortdesc')?.text),
     statusDescription:
         docenteClean(day?.querySelector('.tim_desc_stato')?.text),

@@ -12,6 +12,12 @@ import 'package:table_calendar/table_calendar.dart';
 /// absence coloured cards, the grades chips row, the subject average card and
 /// the home lesson card.
 
+/// School year months, September to June.
+List<DateTime> docenteSchoolMonths(DateTime now) {
+  final startYear = now.month >= 9 ? now.year : now.year - 1;
+  return [for (var i = 0; i < 10; i++) DateTime(startYear, 9 + i)];
+}
+
 /// An event shown on the calendar and in the day list.
 class DocenteCalendarEvent {
   final DateTime start;

@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:registro_elettronico/feature/docente/data/docente_class_agenda.dart';
 import 'package:registro_elettronico/feature/docente/data/docente_classes_parser.dart';
+import 'package:registro_elettronico/feature/docente/data/docente_text.dart';
 
 /// Read-only client for the ClasseViva teacher web area.
 ///
@@ -75,8 +76,8 @@ class DocenteAgendaEvent {
   factory DocenteAgendaEvent.fromJson(Map<String, dynamic> json) =>
       DocenteAgendaEvent(
         id: '${json['id'] ?? ''}',
-        start: _parseDateTime(json['start']),
-        end: _parseDateTime(json['end']),
+        start: docenteParseDateTime(json['start']),
+        end: docenteParseDateTime(json['end']),
         allDay: json['allDay'] == true,
         title: _text(json['title']),
         note: _text(json['nota']),
@@ -113,8 +114,8 @@ class DocenteNotice {
         code: '${json['codice'] ?? ''}',
         title: _text(json['titolo']),
         text: _text(json['testo']),
-        publishedOn: _parseDateTime(json['data_start']),
-        expiresOn: _parseDateTime(json['data_stop']),
+        publishedOn: docenteParseDateTime(json['data_start']),
+        expiresOn: docenteParseDateTime(json['data_stop']),
         category: _text(json['tipo_com_desc']),
         read: json['conf_lettura'] != 'non_letto',
       );
@@ -404,8 +405,3 @@ List<Map<String, dynamic>> _objects(dynamic value) {
 }
 
 String _text(dynamic value) => value == null ? '' : '$value'.trim();
-
-DateTime? _parseDateTime(dynamic value) {
-  if (value == null) return null;
-  return DateTime.tryParse('$value'.replaceFirst(' ', 'T'));
-}
