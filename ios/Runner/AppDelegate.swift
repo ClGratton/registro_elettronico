@@ -6,9 +6,13 @@ import WebKit
 @objc class AppDelegate: FlutterAppDelegate {
   private static let cieIdHost = "idserver.servizicie.interno.gov.it"
 
-  /// The CieID app hands the login back through this URL scheme (Info.plist),
-  /// which is the bundle identifier, as the IPZS cieid-ios-sdk asks.
-  private let urlScheme = Bundle.main.bundleIdentifier ?? ""
+  /// The CieID app hands the login back through this URL scheme. It is read
+  /// from Info.plist, and is not the bundle identifier on purpose: sideloading
+  /// tools rewrite that, and CieID would then call back a scheme nobody owns.
+  private let urlScheme: String = {
+    let types = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
+    return (types?.first?["CFBundleURLSchemes"] as? [String])?.first ?? "registrocieid"
+  }()
   private var pendingCieIdResult: FlutterResult?
   private var cieIdLeftApp = false
 
@@ -91,8 +95,8 @@ import WebKit
 
   /// CieID redirection flow (IPZS cieid-ios-sdk, app it.ipzs.cieID): the CIE
   /// login URL the WebView was about to load is handed to the app as
-  /// `CIEID://<url>&sourceApp=<our URL scheme>`. When the CIE is read, CieID
-  /// opens `<our URL scheme>://...https://<idserver URL>`, which
+  /// `CIEID://<url>&sourceApp=<our URL scheme>` (the same form the IO app uses).
+  /// When the CIE is read, CieID opens `<our URL scheme>:https://<idserver URL>`, which
   /// [handleCieIdReturn] passes back to Dart as `{resultCode, url, error}`.
   private func launchCieId(_ entryUrl: String?, result: @escaping FlutterResult) {
     guard let entryUrl = entryUrl,
@@ -106,6 +110,7 @@ import WebKit
     pendingCieIdResult?(["error": "superseded"])
     pendingCieIdResult = result
     cieIdLeftApp = false
+    NSLog("[CieID] launching, sourceApp=%@", urlScheme)
     UIApplication.shared.open(target, options: [:]) { [weak self] opened in
       // No app handles the scheme: CieID is not installed.
       guard !opened, let self = self, let pending = self.pendingCieIdResult else { return }
@@ -116,6 +121,7 @@ import WebKit
 
   private func handleCieIdReturn(_ url: URL) -> Bool {
     guard url.scheme?.lowercased() == urlScheme.lowercased() else { return false }
+    NSLog("[CieID] return received, pending=%@", pendingCieIdResult == nil ? "no" : "yes")
     guard let pending = pendingCieIdResult else { return true }
     pendingCieIdResult = nil
     // Everything from the first "https://" is the URL the WebView continues with.
