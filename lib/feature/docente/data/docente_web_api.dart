@@ -366,6 +366,18 @@ bool isCieIdEntry(Uri uri) =>
         uri.path == '/idp/login/livello1' ||
         uri.path.contains('OpenApp'));
 
+/// iOS counterpart of [isCieIdEntry], matched as the IPZS cieid-ios-sdk does:
+/// a `livello1` / `livello2` path segment on the CIE identity server, or a
+/// `nextUrl` parameter on its `ios.` host. The URL is handed to the CieID app.
+bool isCieIdIosEntry(Uri uri) {
+  const cieHost = 'idserver.servizicie.interno.gov.it';
+  const iosHost = 'ios.$cieHost';
+  if (uri.host != cieHost && uri.host != iosHost) return false;
+  return uri.pathSegments.contains('livello1') ||
+      uri.pathSegments.contains('livello2') ||
+      (uri.host == iosHost && uri.queryParameters.containsKey('nextUrl'));
+}
+
 /// URL for logs: query parameter names only, values are tokens.
 String redactUrl(String url) {
   final uri = Uri.tryParse(url);
@@ -374,7 +386,8 @@ String redactUrl(String url) {
   return '${uri.scheme}://${uri.host}${uri.path}${names.isEmpty ? '' : '?[$names]'}';
 }
 
-/// Extracts `PHPSESSID` from an Android `CookieManager.getCookie` header.
+/// Extracts `PHPSESSID` from a `Cookie`-style header (Android
+/// `CookieManager.getCookie`, or the one AppDelegate builds on iOS).
 String? sessionIdFromCookieHeader(String? header) {
   if (header == null) return null;
   for (final part in header.split(';')) {

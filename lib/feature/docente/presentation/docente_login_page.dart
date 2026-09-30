@@ -29,7 +29,10 @@ class _DocenteLoginPageState extends State<DocenteLoginPage> {
   static const _webLoginHosts = {'web.spaggiari.eu', 'eid.istruzione.it'};
 
   /// CIE identity server (verified path, handled by the CieID app).
-  static const _cieHosts = {'idserver.servizicie.interno.gov.it'};
+  static const _cieHosts = {
+    'idserver.servizicie.interno.gov.it',
+    'ios.idserver.servizicie.interno.gov.it',
+  };
 
   WebViewController? _controller;
   String? _userAgent;
@@ -58,7 +61,7 @@ class _DocenteLoginPageState extends State<DocenteLoginPage> {
     final uri = Uri.tryParse(request.url);
     if (uri == null) return NavigationDecision.navigate;
     if (uri.scheme == 'http' || uri.scheme == 'https') {
-      if (request.isForMainFrame && isCieIdEntry(uri)) {
+      if (request.isForMainFrame && _isCieIdEntry(uri)) {
         await _launchCieId(request.url);
         return NavigationDecision.prevent;
       }
@@ -113,8 +116,11 @@ class _DocenteLoginPageState extends State<DocenteLoginPage> {
     // Server redirects after the SAML POST may not reach the navigation
     // delegate, so the CIE entry page is also caught when it starts loading.
     final uri = Uri.tryParse(url);
-    if (uri != null && isCieIdEntry(uri)) _launchCieId(url);
+    if (uri != null && _isCieIdEntry(uri)) _launchCieId(url);
   }
+
+  bool _isCieIdEntry(Uri uri) =>
+      Platform.isIOS ? isCieIdIosEntry(uri) : isCieIdEntry(uri);
 
   bool _cieIdInProgress = false;
   String? _startedUrl;
@@ -194,7 +200,9 @@ class _DocenteLoginPageState extends State<DocenteLoginPage> {
   Future<void> _startWithMobileUserAgent() async {
     final defaultUserAgent =
         _unquote(await _controller!.evaluateJavascript('navigator.userAgent'));
-    setState(() => _userAgent = mobileUserAgent(defaultUserAgent));
+    setState(() => _userAgent = Platform.isAndroid
+        ? mobileUserAgent(defaultUserAgent)
+        : defaultUserAgent);
     // Fallback in case the new user agent does not trigger a reload.
     Future.delayed(const Duration(milliseconds: 800), _openLogin);
   }

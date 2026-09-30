@@ -68,6 +68,22 @@ void main() {
     expect(entry('https://web.spaggiari.eu/idp/login/livello2'), isFalse);
   });
 
+  test('isCieIdIosEntry follows the IPZS iOS SDK', () {
+    bool entry(String url) => isCieIdIosEntry(Uri.parse(url));
+    const cie = 'https://idserver.servizicie.interno.gov.it/idp/login';
+    const ios = 'https://ios.idserver.servizicie.interno.gov.it';
+    expect(entry('$cie/livello2?opId=x'), isTrue);
+    expect(entry('$cie/livello1?opId=x'), isTrue);
+    expect(entry('$ios/idp/login/livello2?value=x'), isTrue);
+    expect(entry('$ios/idp/x?nextUrl=https%3A%2F%2Fa.it'), isTrue);
+    expect(entry('$cie/livello2mobile?value=x'), isFalse);
+    expect(entry('$cie/livello1e2postqrcode'), isFalse);
+    expect(entry('https://idserver.servizicie.interno.gov.it/x?nextUrl=a'),
+        isFalse);
+    expect(entry('https://web.spaggiari.eu/idp/login/livello2'), isFalse);
+    expect(entry('https://evil.it/idp/login/livello2'), isFalse);
+  });
+
   test('redactUrl keeps parameter names only', () {
     expect(redactUrl('https://a.it/p?code=secret&state=s'),
         'https://a.it/p?[code,state]');
