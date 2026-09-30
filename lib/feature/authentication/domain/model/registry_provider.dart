@@ -23,7 +23,7 @@ extension RegistryProviderValue on RegistryProvider {
       case RegistryProvider.didUp:
         return 'didUP';
       case RegistryProvider.classeVivaDocente:
-        return 'ClasseViva Docente';
+        return 'ClasseViva (SPID/CIE)';
     }
   }
 
